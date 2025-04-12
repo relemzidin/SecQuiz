@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security+ Practice Quiz</title>
+    <style>
+        /* Basic CSS Styling - Same as before */
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #2e2335;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #quiz-container {
+            background: #5c3535;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #460049;
+            margin-bottom: 20px;
+        }
+
+        #question-container {
+            margin-bottom: 20px;
+        }
+
+        #question-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #da7e45;
+        }
+
+        #options-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .option {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #3f0000;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .option label {
+            display: block; /* Makes the whole area clickable */
+            cursor: pointer;
+        }
+
+         .option input[type="radio"] {
+             margin-right: 10px;
+             vertical-align: middle; /* Align radio button better with text */
+         }
+
+        #submit-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #800057;
+            color: rgb(171, 171, 171);
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.2s ease;
+        }
+
+        #submit-button:hover {
+            background-color: #0056b3;
+        }
+
+        #submit-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+
+        #feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        #score-container {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="quiz-container">
+        <h1>Security+ Practice Quiz</h1>
+
+        <div id="question-container">
+            <div id="question-text">Loading question...</div>
+            <div id="options-container">
+                <!-- Options will be loaded here by JavaScript -->
+            </div>
+        </div>
+
+        <button id="submit-button">Submit Answer</button>
+
+        <div id="feedback"></div>
+
+        <div id="score-container" style="display: none;"></div>
+    </div>
+
+    <!-- IMPORTANT: Load the questions *before* the main quiz script -->
+    <script src="questions.js"></script>
+
+    <script>
+        // Main Quiz Logic (in quiz.html)
+
+        const quizContainer = document.getElementById('quiz-container');
+        const questionContainer = document.getElementById('question-container');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const submitButton = document.getElementById('submit-button');
+        const feedbackEl = document.getElementById('feedback');
+        const scoreContainerEl = document.getElementById('score-container');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answerSelected = false;
+        let selectedQuestions = []; // To hold the 5 randomly selected questions
+        const numberOfQuestionsToAsk = 15;
+        let quizLength = 0; // Actual number of questions in this round
+
+        // Function to shuffle an array (Fisher-Yates Algorithm)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+        }
+
+        function setupQuiz() {
+             // Check if quizData was loaded
+             if (typeof quizData === 'undefined' || quizData.length === 0) {
+                questionTextEl.textContent = "Error: Could not load questions. Make sure 'questions.js' is in the same folder and contains the 'quizData' array.";
+                submitButton.style.display = 'none'; // Hide button if questions fail
+                return;
+             }
+
+            // Shuffle the original array (or a copy if you want to preserve the original order elsewhere)
+            shuffleArray(quizData);
+
+            // Determine the actual number of questions for this round
+            quizLength = Math.min(numberOfQuestionsToAsk, quizData.length);
+
+            // Select the first 'quizLength' questions for this session
+            selectedQuestions = quizData.slice(0, quizLength);
+
+            if (quizLength === 0) {
+                 questionTextEl.textContent = "No questions available for the quiz.";
+                 submitButton.style.display = 'none';
+                 return;
+            }
+
+            loadQuestion(); // Load the first question
+        }
+
+
+        function loadQuestion() {
+            answerSelected = false; // Reset selection status
+            feedbackEl.innerHTML = ''; // Clear feedback
+            feedbackEl.className = 'feedback'; // Reset feedback class
+            submitButton.disabled = false; // Re-enable button
+            submitButton.textContent = 'Submit Answer'; // Reset button text
+
+            if (currentQuestionIndex < quizLength) {
+                const currentQuestion = selectedQuestions[currentQuestionIndex];
+                questionTextEl.textContent = `${currentQuestionIndex + 1}. ${currentQuestion.question}`;
+                optionsContainerEl.innerHTML = ''; // Clear previous options
+
+                // Shuffle options for variety (optional but good practice)
+                const shuffledOptions = [...currentQuestion.options].sort(() => Math.random() - 0.5);
+
+
+                shuffledOptions.forEach((option, index) => {
+                    const optionId = `option${index}`;
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'option';
+
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.id = optionId;
+                    radioInput.name = 'option';
+                    radioInput.value = option;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = optionId;
+                    label.textContent = option;
+
+                    radioInput.addEventListener('change', () => {
+                         answerSelected = true;
+                    });
+
+                    optionDiv.appendChild(radioInput);
+                    optionDiv.appendChild(label);
+                    optionsContainerEl.appendChild(optionDiv);
+                });
+
+                 questionContainer.style.display = 'block';
+                 optionsContainerEl.style.display = 'flex';
+                 scoreContainerEl.style.display = 'none';
+
+            } else {
+                showResults();
+            }
+        }
+
+        function handleSubmit() {
+            const selectedOptionInput = document.querySelector('input[name="option"]:checked');
+
+            if (!selectedOptionInput) {
+                feedbackEl.textContent = 'Please select an answer before submitting.';
+                feedbackEl.className = 'feedback incorrect';
+                return;
+            }
+
+            const userAnswer = selectedOptionInput.value;
+            const correctAnswer = selectedQuestions[currentQuestionIndex].correctAnswer;
+
+            document.querySelectorAll('input[name="option"]').forEach(input => {
+                input.disabled = true;
+            });
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                feedbackEl.textContent = 'Correct!';
+                feedbackEl.className = 'feedback correct';
+                selectedOptionInput.parentElement.style.backgroundColor = '#d4edda';
+
+            } else {
+                feedbackEl.textContent = `Incorrect. The correct answer was: ${correctAnswer}`;
+                feedbackEl.className = 'feedback incorrect';
+                selectedOptionInput.parentElement.style.backgroundColor = '#f8d7da';
+                 const correctInput = document.querySelector(`input[name="option"][value="${correctAnswer}"]`);
+                 if(correctInput) {
+                    correctInput.parentElement.style.backgroundColor = '#d4edda';
+                 }
+            }
+
+            submitButton.textContent = 'Next Question';
+            submitButton.disabled = false;
+        }
+
+         function handleNext() {
+             currentQuestionIndex++;
+             document.querySelectorAll('.option').forEach(opt => {
+                opt.style.backgroundColor = ''; // Reset background
+             });
+             loadQuestion();
+         }
+
+        function showResults() {
+            questionContainer.style.display = 'none';
+            optionsContainerEl.style.display = 'none';
+            submitButton.style.display = 'none';
+            feedbackEl.style.display = 'none';
+
+            // Show score out of the number of questions actually asked
+            scoreContainerEl.textContent = `Quiz Finished! Your score: ${score} out of ${quizLength}`;
+            scoreContainerEl.style.display = 'block';
+        }
+
+        // Event Listener for the button
+        submitButton.addEventListener('click', () => {
+             if (submitButton.textContent === 'Submit Answer') {
+                handleSubmit();
+             } else {
+                 handleNext();
+             }
+        });
+
+        // Setup the quiz when the window loads
+        window.onload = setupQuiz;
+
+    </script>
+
+</body>
+</html>
