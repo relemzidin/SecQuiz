@@ -10,11 +10,11 @@
             font-family: sans-serif;
             line-height: 1.6;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             background-color: #2e2335;
-            font-size: 1.2em;
+            font-size: 20px;
             font-weight: bold;
-            color: #da7e45;
+            color: rgb(175, 99, 52);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,7 +23,7 @@
 
         #quiz-container {
             background: #5c3535;
-            padding: 30px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             width: 100%;
@@ -34,17 +34,17 @@
             text-align: center;
             color: #1b041c;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         #question-container {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         #question-text {
-            font-size: 1.2em;
+            font-size: 20px;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             color: #b86531;
             align-items: center;
         }
@@ -63,15 +63,16 @@
             transition: background-color 0.2s ease;
         }
 
-        .option:hover {
-            background-color: #411212;
-        }
-
         .option label {
             display: block; /* Makes the whole area clickable */
             cursor: pointer;
         }
+        
+        .option:hover {
+            background-color: #411212;
+        }
 
+        
          .option input[type="radio"] {
              margin-right: 10px;
              vertical-align: middle; /* Align radio button better with text */
@@ -85,9 +86,10 @@
             color: rgb(44, 5, 5);
             border: 5px solid #112716;
             border-radius: 5px;
-            font-size: 1em;
+            font-size: 20px;
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 20px;
+            margin-top: 10px;
             
             transition: background-color 0.2s ease;
         }
@@ -111,8 +113,9 @@
         }
 
         .correct {
-            background-color: #a94c72;
+            background-color: #4c8da9;
             color: #0a2b12;
+            font-weight: bold;
             border: 5px solid #112716;
         }
 
